@@ -108,6 +108,7 @@ void solveColumn(state_type BC1, ldouble loadFactor, push_back_state_and_pos *Ob
 void plot(std::vector<Coord> &points, sf::RenderWindow &window, Coord origin, Coord scale = {1,1}, sf::Color pColor = sf::Color::White);
 void getState(ldouble pos, push_back_state_and_pos &Data, state_type &state);
 ldouble SIF_Factor(ldouble x);		//x = a/w
+ldouble SIF_Factor(properties prop);
 
 template <typename T = ldouble>
 ldouble Exp(T x, int n);
@@ -119,8 +120,15 @@ Coord getPoints(std::vector<state_type> state, std::vector<Coord> &points,Coord 
 void outputToFile(push_back_state_and_pos &Observer, std::string fileName);
 
 ldouble percentChange(ldouble init, ldouble fin);
+int crackLength();
 
 int main()
+{
+	AnimateMain();
+	return 0;
+}
+
+int crackLength()
 {
 	std::fstream file("F:\\C++\\C++ Programs\\Fracture\\Crack Length Output\\output.txt", std::ios::out);
 	if (!file.is_open())
@@ -130,7 +138,7 @@ int main()
 		return -1;
 	}
 
-	file << "Load Drop\t\t\tCurve Legnth\t\t\ta/w" << std::endl;
+	file << "Load Drop\t\t\tCurve Legnth\t\t\ta/w\t\t\tError" << std::endl;
 	properties paramNeg(10.0L, 0.05L, 0.1L, 200e9, 0.0L);
 	properties paramPos(10.0L, 0.05L, 0.1L, 200e9, 1.0L);
 	properties paramTemp(paramNeg);
@@ -150,10 +158,11 @@ int main()
 	ldouble percDropNeg, percDropPos, percDropTemp;
 
 	ldouble target = 10.0L;
-	for (int i = 1; i <= 25; ++i)
+	for (int i = 1; i <= 100; ++i)
 	{
 		std::cout << "\nLoad Drop = " << i << " started";
 		target = i/100.0L;
+		target *= 25.0L / 100.0L;
 		//target *= 25.0L / 100.0L;
 		paramNeg.a = paramTemp.a;
 		paramPos.a = 1.0L*param1.w;
@@ -199,7 +208,7 @@ int main()
 		}
 		//std::cout << "a = " << paramTemp.a;
 		//std::cin.get();
-		file <<	std::setprecision(8) << target*100 << "\t\t\t\t" << paramTemp.a << "\t\t\t\t" << paramTemp.a/paramTemp.w << "\t\t\t" << error << std::endl;
+		file << std::setprecision(8) << target * 100 << "\t\t\t\t" << paramTemp.a << "\t\t\t\t" << paramTemp.a / paramTemp.w << "\t\t\t" << error << "\t\t\t\t" << std::endl;
 	}
 	
 	return 0;
@@ -210,7 +219,7 @@ int AnimateMain()
 
 	s0 = 5;
 	state_type BC1(2);
-	const ldouble init_Angle = 90L;
+	const ldouble init_Angle = 80L;
 	const ldouble init_Curve = 0L;
 	ldouble loadRatio = 1;
 
@@ -703,6 +712,11 @@ ldouble SIF_Factor(ldouble x)
 {
 	ldouble F = 1.222 - 1.4*x + 7.33*x*x - 13.08*x*x*x + 14 * x*x*x*x;
 	return F;
+}
+
+ldouble SIF_Factor(properties prop)
+{
+	return SIF_Factor(prop.a/prop.w);
 }
 
 void outputToFile(push_back_state_and_pos &Observer, std::string fileName)
